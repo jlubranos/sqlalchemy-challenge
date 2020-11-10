@@ -69,23 +69,40 @@ def tobs():
     return jsonify(highest_tobs)
 
 @app.route("/api/v1.0/<start>")
-def start(start):
+@app.route("/api/v1.0/<start>/<end>")
+def start(start, end = ""):
+    try:
+        dt.datetime.strptime(start,"%m-%d-%Y")
+    except ValueError:
+        return("mm-dd-yyyy format is required.")
     session=Session(engine)
     start=str(start)
-    start=start.replace('"','',2)
+#    start=start.replace('"','',2)
     year=int(start[6:10])
     month=int(start[0:2])
     day=int(start[3:5])
     start=dt.date(year,month,day)
-    query=session.query(func.min(Measurement.tobs),func.max(Measurement.tobs),func.avg(Measurement.tobs)).\
-                    filter(Measurement.date >= str(start)).\
-                    order_by(Measurement.date.desc()).all()
+    if (end==""):
+        query=session.query(func.min(Measurement.tobs),func.max(Measurement.tobs),func.avg(Measurement.tobs)).\
+            filter(Measurement.date >= str(start)).\
+            order_by(Measurement.date.desc()).all()
+    else:
+        try:
+            dt.datetime.strptime(end,"%m-%d-%Y")
+        except ValueError:
+            return("mm-dd-yyyy format is required.")
+        end=str(end)
+#        end=end.replace('"','',2)
+        year=int(end[6:10])
+        month=int(end[0:2])
+        day=int(end[3:5])
+        end=dt.date(year,month,day)
+        query=session.query(func.min(Measurement.tobs),func.max(Measurement.tobs),func.avg(Measurement.tobs)).\
+            filter(Measurement.date >= str(start)).\
+            filter(Measurement.date <= str(end)).\
+            order_by(Measurement.date.desc()).all()
     session.close() 
     return jsonify(query)
-
-@app.route("/api/v1.0/<start>/<end>")
-def start_end(start,end):
-    return start, end
 
 if __name__ == "__main__":
     app.run(debug=True)
