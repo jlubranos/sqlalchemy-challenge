@@ -77,7 +77,6 @@ def start(start, end = ""):
         return("mm-dd-yyyy format is required.")
     session=Session(engine)
     start=str(start)
-#    start=start.replace('"','',2)
     year=int(start[6:10])
     month=int(start[0:2])
     day=int(start[3:5])
@@ -92,7 +91,6 @@ def start(start, end = ""):
         except ValueError:
             return("mm-dd-yyyy format is required.")
         end=str(end)
-#        end=end.replace('"','',2)
         year=int(end[6:10])
         month=int(end[0:2])
         day=int(end[3:5])
